@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Momentum Campus</title>
+  <meta name="theme-color" content="#0b1220" />
+  <style>
+    :root{
+      --bg:#060912; --panel:rgba(10,16,28,.82); --panel-soft:rgba(255,255,255,.05);
+      --panel-strong:rgba(255,255,255,.08); --border:rgba(255,255,255,.08);
+      --text:#f8fafc; --muted:#98a6bc; --accent:#7c3aed; --accent2:#38bdf8;
+      --accent-soft:rgba(124,58,237,.16); --success:#22c55e; --danger:#fb7185;
+      --shadow:0 24px 80px rgba(0,0,0,.34); --overlay:none; --overlay-size:auto;
+    }
+    *{box-sizing:border-box}
+    html,body{min-height:100%}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      background:var(--bg);
+      overflow-x:hidden;
+    }
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background-image:var(--overlay);
+      background-size:var(--overlay-size);
+      pointer-events:none;
+      z-index:0;
+    }
+    button, input, select, textarea{font:inherit}
+    button{cursor:pointer}
+    input, select, textarea{
+      color:var(--text);
+      background:var(--panel-soft);
+      border:1px solid var(--border);
+      border-radius:24px;
+      padding:14px 16px;
+      outline:none;
+      width:100%;
+    }
+    input::placeholder, textarea::placeholder{color:var(--muted)}
+    textarea{resize:vertical; min-height:120px}
+    .app{position:relative; z-index:1; max-width:1440px; margin:0 auto; padding:16px 16px 92px}
+    .layout{display:grid; grid-template-columns:280px minmax(0,1fr); gap:24px}
+    .sidebar{position:sticky; top:24px; align-self:start}
+    .surface{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(24px);
+    }
+    .surface.strong{background:var(--panel-strong)}
+    .section{padding:20px}
+    .stack{display:flex; flex-direction:column; gap:20px}
+    .nav-card button, .bottom-nav button{
+      width:100%; border:none; background:transparent; color:var(--muted);
+      border-radius:20px; padding:14px 16px; display:flex; align-items:center; gap:12px;
+      text-align:left;
+    }
+    .nav-card button.active, .bottom-nav button.active{
+      background:var(--accent-soft); color:var(--accent)
+    }
+    .sidebar-brand{display:flex; align-items:center; gap:12px}
+    .brand-icon{
+      width:48px; height:48px; border-radius:18px; display:grid; place-items:center;
+      background:var(--accent-soft); color:var(--accent); font-size:22px; font-weight:700
+    }
+    .muted{color:var(--muted)}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px; border-radius:999px;
+      padding:8px 12px; font-size:12px; font-weight:600;
+      background:var(--panel-soft); color:var(--text); border:1px solid transparent;
+    }
+    .badge.accent{background:var(--accent-soft); color:var(--accent)}
+    .badge.success{background:rgba(34,197,94,.14); color:var(--success)}
+    .badge.danger{background:rgba(244,63,94,.14); color:var(--danger)}
+    .button{
+      border:none; border-radius:18px; padding:14px 16px; font-weight:600;
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      color:white; background:linear-gradient(135deg, var(--accent), var(--accent2));
+    }
+    .button.ghost{
+      background:var(--panel-soft); color:var(--text); border:1px solid var(--border);
+    }
+    .hero{
+      overflow:hidden; position:relative;
+    }
+    .hero::after{
+      content:""; position:absolute; inset:0;
+      background:radial-gradient(circle at 88% 18%, var(--accent-soft), transparent 24%);
+      pointer-events:none;
+    }
+    .hero-grid{position:relative; display:grid; grid-template-columns:1.18fr .82fr; gap:24px; align-items:center}
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--border); border-radius:999px; padding:8px 12px; font-size:12px;
+      background:var(--panel-soft); color:var(--muted)
+    }
+    h1{font-size:clamp(2.1rem,4.8vw,4.4rem); line-height:1.02; letter-spacing:-.06em; margin:0}
+    h2{font-size:1.2rem; letter-spacing:-.02em; margin:0}
+    .hero p, .section p{margin:0}
+    .metric-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px}
+    .metric{
+      background:var(--panel-soft); border:1px solid var(--border); border-radius:24px; padding:16px
+    }
+    .metric .label{font-size:.9rem; color:var(--muted)}
+    .metric .value{font-size:2rem; font-weight:700; letter-spacing:-.04em; margin-top:4px}
+    .metric .sub{font-size:.92rem; color:var(--muted); margin-top:4px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:16px}
+    .grid-2{display:grid; grid-template-columns:1.1fr .9fr; gap:20px}
+    .grid-study{display:grid; grid-template-columns:.96fr 1.04fr; gap:20px}
+    .scroller{max-height:420px; overflow:auto; padding-right:4px}
+    .list{display:flex; flex-direction:column; gap:12px}
+    .card-lite{
+      background:var(--panel-soft); border:1px solid var(--border); border-radius:24px; padding:16px
+    }
+    .task{
+      display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:flex-start
+    }
+    .icon-button{
+      width:40px; height:40px; border:none; border-radius:16px; display:grid; place-items:center;
+      background:var(--panel); color:var(--muted)
+    }
+    .toggle{
+      width:24px; height:24px; border-radius:999px; display:grid; place-items:center;
+      color:var(--accent); background:transparent; border:none; padding:0
+    }
+    .segmented{
+      display:inline-flex; border:1px solid var(--border); border-radius:18px; padding:4px;
+      background:var(--panel-soft)
+    }
+    .segmented button{
+      border:none; background:transparent; color:var(--muted); padding:10px 12px; border-radius:14px; font-weight:600
+    }
+    .segmented button.active{background:var(--accent-soft); color:var(--accent)}
+    .focus-grid{display:grid; grid-template-columns:1.08fr .92fr; gap:20px}
+    .focus-ring{
+      width:min(250px, 74vw); height:min(250px, 74vw); margin:0 auto;
+      border-radius:999px; padding:10px;
+      background:conic-gradient(var(--accent) 0%, var(--accent2) 0%, rgba(255,255,255,.08) 0%);
+    }
+    .focus-ring-inner{
+      width:100%; height:100%; border-radius:999px; display:grid; place-items:center;
+      background:var(--panel); text-align:center
+    }
+    .focus-big{font-size:clamp(3.2rem,10vw,4.6rem); line-height:1; letter-spacing:-.08em; font-weight:700}
+    .smallcaps{font-size:.72rem; text-transform:uppercase; letter-spacing:.18em; color:var(--muted)}
+    .bottom-nav{
+      position:fixed; left:12px; right:12px; bottom:12px; z-index:20;
+    }
+    .bottom-nav-inner{
+      max-width:920px; margin:0 auto; padding:8px; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px
+    }
+    .bottom-nav button{
+      flex-direction:column; justify-content:center; padding:10px 6px; font-size:11px
+    }
+    .topbar{position:sticky; top:0; z-index:10; padding:8px 0 20px; backdrop-filter:blur(12px)}
+    .section-title{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px}
+    .section-title p{font-size:.95rem; color:var(--muted); margin-top:6px}
+    .tabs-space{margin-bottom:20px}
+    .pill-grid{display:flex; flex-wrap:wrap; gap:8px}
+    .hidden-lg{display:none}
+    .audio-card .value{font-size:1.5rem; font-weight:700; margin-top:6px}
+    .toast{
+      position:fixed; top:20px; left:50%; transform:translateX(-50%);
+      z-index:50; padding:12px 16px; border-radius:18px; border:1px solid var(--border);
+      background:var(--panel); box-shadow:var(--shadow); font-weight:600; backdrop-filter:blur(20px)
+    }
+    .mono{font-variant-numeric:tabular-nums}
+    .color-card{min-height:100px}
+    .theme-card, .bg-card, .preset-card{border:1px solid var(--border); border-radius:24px; padding:16px; text-align:left; background:var(--panel-soft)}
+    .theme-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+    .preset-grid-3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+    .preset-grid-2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+    .timeline-grid{display:grid; gap:12px}
+    .tiny{font-size:.82rem}
+    .w-full{width:100%}
+    .mb-4{margin-bottom:16px}
+    .mt-4{margin-top:16px}
+    .mt-5{margin-top:20px}
+    .mt-6{margin-top:24px}
+    .cards-2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+    .cards-3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px}
+    .search-wrap{position:relative}
+    .search-wrap .search-icon{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--muted)}
+    .search-wrap input{padding-left:40px}
+    .sidebar-stats{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:16px}
+    .surface-label{font-size:.9rem; color:var(--muted)}
+    .timeline-item{display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:start}
+    .hero-actions{display:flex; flex-wrap:wrap; gap:12px; margin-top:24px}
+    .desktop-only{display:block}
+    @media (max-width: 1120px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{display:none}
+      .hero-grid, .grid-2, .grid-study, .focus-grid{grid-template-columns:1fr}
+      .desktop-only{display:none}
+      .hidden-lg{display:block}
+    }
+    @media (max-width: 720px){
+      .app{padding:12px 12px 92px}
+      .theme-grid, .preset-grid-3, .preset-grid-2, .cards-2, .cards-3{grid-template-columns:1fr}
+      .metric-grid{grid-template-columns:1fr 1fr}
+      .section{padding:16px}
+      .surface{border-radius:24px}
+      .hero-actions{flex-direction:column}
+      .button{width:100%}
+      .bottom-nav button{font-size:10px}
+    }
+  </style>
+</head>
+<body>
+  <div id="toast-root"></div>
+  <div class="app">
+    <div class="layout">
+      <aside class="sidebar" id="sidebar"></aside>
+      <main>
+        <div class="topbar" id="topbar"></div>
+        <div id="more-tabs" class="tabs-space"></div>
+        <div id="page"></div>
+      </main>
+    </div>
+  </div>
+  <nav class="bottom-nav hidden-lg">
+    <div class="surface bottom-nav-inner" id="bottom-nav"></div>
+  </nav>
+
+  <script>
+    const STORAGE_KEY = "momentum-campus-premium-v2-html";
+    const DEFAULT_VIEW = "dashboard";
+
+    const themes = {"obsidian": {"name": "Obsidian", "background": "radial-gradient(circle at 0% 0%, rgba(99,102,241,0.16), transparent 24%), radial-gradient(circle at 100% 0%, rgba(14,165,233,0.10), transparent 22%), linear-gradient(180deg, #060912 0%, #0b1220 48%, #080d18 100%)", "panel": "rgba(10, 16, 28, 0.80)", "panelSoft": "rgba(255,255,255,0.045)", "panelStrong": "rgba(255,255,255,0.07)", "border": "rgba(255,255,255,0.08)", "text": "#F8FAFC", "muted": "#98A6BC", "accent": "#7C3AED", "accent2": "#38BDF8", "accentSoft": "rgba(124,58,237,0.16)", "success": "#22C55E", "danger": "#FB7185", "shadow": "0 24px 80px rgba(0,0,0,0.34)"}, "pearl": {"name": "Pearl", "background": "radial-gradient(circle at 100% 0%, rgba(59,130,246,0.14), transparent 24%), radial-gradient(circle at 0% 0%, rgba(168,85,247,0.10), transparent 24%), linear-gradient(180deg, #fbfdff 0%, #eef3fa 50%, #e9eef6 100%)", "panel": "rgba(255,255,255,0.82)", "panelSoft": "rgba(15,23,42,0.04)", "panelStrong": "rgba(15,23,42,0.07)", "border": "rgba(15,23,42,0.08)", "text": "#0F172A", "muted": "#667085", "accent": "#2563EB", "accent2": "#8B5CF6", "accentSoft": "rgba(37,99,235,0.12)", "success": "#16A34A", "danger": "#E11D48", "shadow": "0 24px 80px rgba(120,136,166,0.16)"}, "evergreen": {"name": "Evergreen", "background": "radial-gradient(circle at 0% 0%, rgba(16,185,129,0.15), transparent 24%), radial-gradient(circle at 100% 0%, rgba(34,197,94,0.08), transparent 22%), linear-gradient(180deg, #06130e 0%, #0b1c16 48%, #08140f 100%)", "panel": "rgba(8, 24, 18, 0.80)", "panelSoft": "rgba(255,255,255,0.045)", "panelStrong": "rgba(255,255,255,0.07)", "border": "rgba(255,255,255,0.08)", "text": "#ECFDF5", "muted": "#95B8A6", "accent": "#10B981", "accent2": "#84CC16", "accentSoft": "rgba(16,185,129,0.16)", "success": "#34D399", "danger": "#FB7185", "shadow": "0 24px 80px rgba(0,0,0,0.34)"}, "rose": {"name": "Rose", "background": "radial-gradient(circle at 0% 0%, rgba(244,114,182,0.15), transparent 24%), radial-gradient(circle at 100% 0%, rgba(249,115,22,0.08), transparent 22%), linear-gradient(180deg, #170a11 0%, #201019 48%, #16090f 100%)", "panel": "rgba(28, 14, 24, 0.80)", "panelSoft": "rgba(255,255,255,0.045)", "panelStrong": "rgba(255,255,255,0.07)", "border": "rgba(255,255,255,0.08)", "text": "#FFF1F7", "muted": "#D0A9BD", "accent": "#EC4899", "accent2": "#FB7185", "accentSoft": "rgba(236,72,153,0.16)", "success": "#34D399", "danger": "#FB7185", "shadow": "0 24px 80px rgba(0,0,0,0.34)"}, "sunrise": {"name": "Sunrise", "background": "radial-gradient(circle at 100% 0%, rgba(249,115,22,0.14), transparent 24%), radial-gradient(circle at 0% 0%, rgba(245,158,11,0.10), transparent 24%), linear-gradient(180deg, #fffaf2 0%, #fff1dd 50%, #f8e8d3 100%)", "panel": "rgba(255,255,255,0.82)", "panelSoft": "rgba(120,53,15,0.04)", "panelStrong": "rgba(120,53,15,0.07)", "border": "rgba(120,53,15,0.08)", "text": "#3A220F", "muted": "#83624C", "accent": "#F97316", "accent2": "#F59E0B", "accentSoft": "rgba(249,115,22,0.12)", "success": "#16A34A", "danger": "#E11D48", "shadow": "0 24px 80px rgba(150,102,55,0.16)"}, "lunar": {"name": "Lunar", "background": "radial-gradient(circle at 0% 0%, rgba(148,163,184,0.15), transparent 24%), radial-gradient(circle at 100% 0%, rgba(99,102,241,0.08), transparent 22%), linear-gradient(180deg, #0a0d14 0%, #111827 48%, #0a0d14 100%)", "panel": "rgba(17, 24, 39, 0.82)", "panelSoft": "rgba(255,255,255,0.045)", "panelStrong": "rgba(255,255,255,0.07)", "border": "rgba(255,255,255,0.08)", "text": "#F8FAFC", "muted": "#A3B0C3", "accent": "#94A3B8", "accent2": "#818CF8", "accentSoft": "rgba(148,163,184,0.16)", "success": "#22C55E", "danger": "#FB7185", "shadow": "0 24px 80px rgba(0,0,0,0.34)"}};
+    const backgrounds = {"glow": {"name": "Soft glow", "overlay": "radial-gradient(circle at 12% 14%, rgba(255,255,255,0.08), transparent 18%), radial-gradient(circle at 88% 12%, rgba(255,255,255,0.06), transparent 18%), radial-gradient(circle at 50% 100%, rgba(255,255,255,0.05), transparent 28%)", "backgroundSize": "auto"}, "grid": {"name": "Grid", "overlay": "linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)", "backgroundSize": "28px 28px"}, "mesh": {"name": "Mesh", "overlay": "radial-gradient(circle at 20% 25%, rgba(255,255,255,0.06), transparent 14%), radial-gradient(circle at 75% 24%, rgba(255,255,255,0.06), transparent 14%), radial-gradient(circle at 50% 74%, rgba(255,255,255,0.05), transparent 20%)", "backgroundSize": "auto"}, "spotlight": {"name": "Spotlight", "overlay": "radial-gradient(circle at 50% 10%, rgba(255,255,255,0.08), transparent 28%), radial-gradient(circle at 50% 110%, rgba(255,255,255,0.05), transparent 24%)", "backgroundSize": "auto"}, "paper": {"name": "Paper grain", "overlay": "radial-gradient(rgba(255,255,255,0.02) 0.6px, transparent 0.8px)", "backgroundSize": "12px 12px"}, "plain": {"name": "Minimal", "overlay": "none", "backgroundSize": "auto"}};
+    const classicalPresets = {"nocturne": {"name": "Nocturne", "description": "Soft late-night piano loop", "bpm": 68, "steps": [{"notes": [60, 67], "beat": 1.5}, {"notes": [64], "beat": 0.5}, {"notes": [67, 72], "beat": 1}, {"notes": [64], "beat": 1}, {"notes": [62, 69], "beat": 1.5}, {"notes": [65], "beat": 0.5}, {"notes": [69, 74], "beat": 1}, {"notes": [65], "beat": 1}]}, "sonata": {"name": "Study Sonata", "description": "Slightly brighter classical study flow", "bpm": 84, "steps": [{"notes": [55, 60, 64], "beat": 1}, {"notes": [60], "beat": 0.5}, {"notes": [64], "beat": 0.5}, {"notes": [57, 62, 65], "beat": 1}, {"notes": [62], "beat": 0.5}, {"notes": [65], "beat": 0.5}, {"notes": [59, 64, 67], "beat": 1}, {"notes": [64], "beat": 0.5}, {"notes": [67], "beat": 0.5}, {"notes": [60, 65, 69], "beat": 1}, {"notes": [65], "beat": 0.5}, {"notes": [69], "beat": 0.5}]}, "chamber": {"name": "Chamber", "description": "Steady baroque-inspired pattern", "bpm": 92, "steps": [{"notes": [52, 59, 64], "beat": 0.75}, {"notes": [59], "beat": 0.25}, {"notes": [64], "beat": 0.5}, {"notes": [55, 62, 67], "beat": 0.75}, {"notes": [62], "beat": 0.25}, {"notes": [67], "beat": 0.5}, {"notes": [57, 64, 69], "beat": 0.75}, {"notes": [64], "beat": 0.25}, {"notes": [69], "beat": 0.5}, {"notes": [59, 67, 71], "beat": 0.75}, {"notes": [67], "beat": 0.25}, {"notes": [71], "beat": 0.5}]}};
+    const ambientPresets = {"rain": {"name": "Rain", "description": "Soft high-frequency rainfall", "buffer": "white", "filterType": "highpass", "frequency": 3200, "q": 0.2, "gain": 0.2}, "brown": {"name": "Brown noise", "description": "Warm low-end study noise", "buffer": "brown", "filterType": "lowpass", "frequency": 900, "q": 0.4, "gain": 0.18}, "ocean": {"name": "Ocean", "description": "Slow wide noise with movement", "buffer": "white", "filterType": "lowpass", "frequency": 700, "q": 0.8, "gain": 0.16, "lfoFrequency": 0.08, "lfoDepth": 0.04}, "fireplace": {"name": "Fireplace", "description": "Warm filtered crackle texture", "buffer": "brown", "filterType": "bandpass", "frequency": 1200, "q": 0.7, "gain": 0.14}};
+    const dashboardQuotes = [
+      "Make the next step obvious and the rest gets easier.",
+      "A calm system beats a motivational spike.",
+      "Protect your attention and school gets lighter.",
+      "Clear priorities remove half the stress."
+    ];
+
+    function uid(){ return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,8); }
+    function localDateKey(date = new Date()){
+      const y = date.getFullYear();
+      const m = String(date.getMonth()+1).padStart(2,"0");
+      const d = String(date.getDate()).padStart(2,"0");
+      return `${y}-${m}-${d}`;
+    }
+    function todayKey(){ return localDateKey(); }
+    function formatDate(value){
+      if(!value) return "No date";
+      const [y,m,d] = value.split("-").map(Number);
+      const date = new Date(y, (m||1)-1, d||1);
+      return date.toLocaleDateString(undefined, {month:"short", day:"numeric", weekday:"short"});
+    }
+    function sortTasks(items){
+      const rank = {high:0, medium:1, low:2};
+      return [...items].sort((a,b)=>{
+        if(a.completed !== b.completed) return Number(a.completed) - Number(b.completed);
+        if(!!a.dueDate !== !!b.dueDate) return a.dueDate ? -1 : 1;
+        if(a.dueDate && b.dueDate && a.dueDate !== b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+        if((rank[a.priority] ?? 5) !== (rank[b.priority] ?? 5)) return (rank[a.priority] ?? 5) - (rank[b.priority] ?? 5);
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+    }
+    function sortAssignments(items){
+      const rank = {high:0, medium:1, low:2};
+      const status = {"in-progress":0, "not-started":1, done:2};
+      return [...items].sort((a,b)=>{
+        if(!!a.dueDate !== !!b.dueDate) return a.dueDate ? -1 : 1;
+        if(a.dueDate && b.dueDate && a.dueDate !== b.dueDate) return a.dueDate.localeCompare(b.dueDate);
+        if((status[a.status] ?? 5) !== (status[b.status] ?? 5)) return (status[a.status] ?? 5) - (status[b.status] ?? 5);
+        return (rank[a.priority] ?? 5) - (rank[b.priority] ?? 5);
+      });
+    }
+    function sortPlanner(items){
+      return [...items].sort((a,b)=> `${a.date}-${a.start}`.localeCompare(`${b.date}-${b.start}`));
+    }
+    function habitStreak(habit){
+      let streak = 0;
+      const cursor = new Date();
+      while(true){
+        const key = localDateKey(cursor);
+        if(habit.completions && habit.completions[key]){
+          streak += 1;
+          cursor.setDate(cursor.getDate()-1);
+        } else break;
+      }
+      return streak;
+    }
+    function midiToFrequency(midi){ return 440 * Math.pow(2, (midi - 69)/12); }
+
+    const defaultState = {
+      view: "dashboard",
+      settings: {
+        theme: "obsidian",
+        background: "glow",
+        username: "Udhav",
+        focusMinutes: 35,
+        shortBreakMinutes: 7,
+        longBreakMinutes: 18,
+        autoStartBreaks: false,
+        cloudEnabled: false,
+        supabaseUrl: "",
+        supabaseAnonKey: "",
+        workspaceId: "",
+        moreTab: "music",
+        musicPreset: "nocturne",
+        ambientPreset: "rain",
+        musicPlaying: false,
+        ambientPlaying: false,
+        musicVolume: 0.42,
+        ambientVolume: 0.28
+      },
+      quickNote: "Dump thoughts, reminders, or distractions here so your head stays clear.",
+      tasks: [
+        { id: uid(), title: "Review one lecture with full focus", dueDate: todayKey(), priority: "high", area: "School", notes: "One clean session. No switching tabs.", completed: false, createdAt: Date.now()-1000 },
+        { id: uid(), title: "Plan tomorrow's top priorities", dueDate: todayKey(), priority: "medium", area: "Life", notes: "Keep it realistic.", completed: false, createdAt: Date.now()-2000 }
+      ],
+      habits: [
+        { id: uid(), name: "Study 60 minutes", emoji: "📚", completions: {} },
+        { id: uid(), name: "No reels during focus block", emoji: "📵", completions: {} },
+        { id: uid(), name: "Sleep before 1 AM", emoji: "🌙", completions: {} }
+      ],
+      planner: [
+        { id: uid(), title: "Deep work", date: todayKey(), start: "09:00", end: "10:30" },
+        { id: uid(), title: "Lecture review", date: todayKey(), start: "19:00", end: "20:00" }
+      ],
+      assignments: [
+        { id: uid(), title: "Raptor practice", course: "ITM207", dueDate: todayKey(), priority: "high", status: "in-progress" },
+        { id: uid(), title: "Finish weekly reading notes", course: "BUS221", dueDate: "", priority: "medium", status: "not-started" }
+      ],
+      notes: [
+        { id: uid(), title: "Exam prep system", content: "1. Lecture review\n2. Practice questions\n3. Blurting sheet\n4. One timed run", updatedAt: Date.now() }
+      ],
+      focus: { mode: "focus", secondsLeft: 35*60, running: false, sessionsCompleted: 0, totalFocusMinutes: 0, intent: "Finish the hardest thing first." }
+    };
+
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        return {
+          ...structuredClone(defaultState),
+          ...parsed,
+          settings: {...defaultState.settings, ...(parsed.settings || {})},
+          focus: {...defaultState.focus, ...(parsed.focus || {})}
+        };
+      }catch(e){
+        return structuredClone(defaultState);
+      }
+    }
+
+    const state = loadState();
+    const refs = {
+      toastRoot: document.getElementById("toast-root"),
+      sidebar: document.getElementById("sidebar"),
+      topbar: document.getElementById("topbar"),
+      moreTabs: document.getElementById("more-tabs"),
+      page: document.getElementById("page"),
+      bottomNav: document.getElementById("bottom-nav")
+    };
+    const audio = {
+      ctx: null,
+      noiseBuffers: {},
+      music: { stop: null, gain: null, intervalId: null },
+      ambient: { stop: null, gain: null }
+    };
+    let focusInterval = null;
+    let toastTimeout = null;
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    function showToast(text){
+      refs.toastRoot.innerHTML = `<div class="toast">${escapeHtml(text)}</div>`;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(()=> refs.toastRoot.innerHTML = "", 2200);
+    }
+    function escapeHtml(s){
+      return String(s ?? "").replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function applyTheme(){
+      const theme = themes[state.settings.theme] || themes.obsidian;
+      const bg = backgrounds[state.settings.background] || backgrounds.glow;
+      const root = document.documentElement.style;
+      root.setProperty("--bg", theme.background);
+      root.setProperty("--panel", theme.panel);
+      root.setProperty("--panel-soft", theme.panelSoft);
+      root.setProperty("--panel-strong", theme.panelStrong);
+      root.setProperty("--border", theme.border);
+      root.setProperty("--text", theme.text);
+      root.setProperty("--muted", theme.muted);
+      root.setProperty("--accent", theme.accent);
+      root.setProperty("--accent2", theme.accent2);
+      root.setProperty("--accent-soft", theme.accentSoft);
+      root.setProperty("--success", theme.success);
+      root.setProperty("--danger", theme.danger);
+      root.setProperty("--shadow", theme.shadow);
+      root.setProperty("--overlay", bg.overlay);
+      root.setProperty("--overlay-size", bg.backgroundSize || "auto");
+    }
+
+    async function ensureAudioContext(){
+      if(!audio.ctx){
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if(!AudioCtx) return null;
+        audio.ctx = new AudioCtx();
+      }
+      if(audio.ctx.state === "suspended") await audio.ctx.resume();
+      return audio.ctx;
+    }
+    function createWhiteNoiseBuffer(ctx, seconds=2){
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i] = Math.random()*2 - 1;
+      return buffer;
+    }
+    function createBrownNoiseBuffer(ctx, seconds=2){
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let last = 0;
+      for(let i=0;i<data.length;i++){
+        const white = Math.random()*2 - 1;
+        last = (last + 0.02 * white) / 1.02;
+        data[i] = last * 3.5;
+      }
+      return buffer;
+    }
+    function stopMusic(){
+      if(audio.music.stop) audio.music.stop();
+      audio.music = { stop:null, gain:null, intervalId:null };
+      state.settings.musicPlaying = false;
+    }
+    function stopAmbient(){
+      if(audio.ambient.stop) audio.ambient.stop();
+      audio.ambient = { stop:null, gain:null };
+      state.settings.ambientPlaying = false;
+    }
+    function triggerSynthNote(ctx, destination, midi, when, duration, volume=.12, type="triangle"){
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+      osc.type = type;
+      osc.frequency.setValueAtTime(midiToFrequency(midi), when);
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(type === "triangle" ? 1800 : 2400, when);
+      gain.gain.setValueAtTime(.0001, when);
+      gain.gain.linearRampToValueAtTime(volume, when + .03);
+      gain.gain.exponentialRampToValueAtTime(.0001, when + duration);
+      osc.connect(filter); filter.connect(gain); gain.connect(destination);
+      osc.start(when); osc.stop(when + duration + .05);
+    }
+    async function startMusic(){
+      stopMusic();
+      const ctx = await ensureAudioContext();
+      if(!ctx) return;
+      const preset = classicalPresets[state.settings.musicPreset] || classicalPresets.nocturne;
+      const gain = ctx.createGain();
+      gain.gain.value = state.settings.musicVolume;
+      gain.connect(ctx.destination);
+      const engine = { nextTime: ctx.currentTime + .08, stepIndex: 0, intervalId: null };
+      const schedule = () => {
+        while(engine.nextTime < ctx.currentTime + .24){
+          const step = preset.steps[engine.stepIndex % preset.steps.length];
+          const duration = (60 / preset.bpm) * (step.beat || 1);
+          const notes = Array.isArray(step.notes) ? step.notes : [step.notes];
+          notes.forEach((note, i) => triggerSynthNote(ctx, gain, note, engine.nextTime + i * .02, duration * .92, i===0 ? .16 : .08, i===0 ? "triangle" : "sine"));
+          engine.nextTime += duration;
+          engine.stepIndex += 1;
+        }
+      };
+      schedule();
+      engine.intervalId = window.setInterval(schedule, 100);
+      audio.music = {
+        gain,
+        intervalId: engine.intervalId,
+        stop: () => {
+          if(engine.intervalId) clearInterval(engine.intervalId);
+          try{ gain.disconnect(); }catch(e){}
+        }
+      };
+      state.settings.musicPlaying = true;
+    }
+    async function startAmbient(){
+      stopAmbient();
+      const ctx = await ensureAudioContext();
+      if(!ctx) return;
+      const preset = ambientPresets[state.settings.ambientPreset] || ambientPresets.rain;
+      const source = ctx.createBufferSource();
+      const filter = ctx.createBiquadFilter();
+      const gain = ctx.createGain();
+      const key = preset.buffer || "white";
+      if(!audio.noiseBuffers[key]){
+        audio.noiseBuffers[key] = key === "brown" ? createBrownNoiseBuffer(ctx) : createWhiteNoiseBuffer(ctx);
+      }
+      source.buffer = audio.noiseBuffers[key];
+      source.loop = true;
+      filter.type = preset.filterType;
+      filter.frequency.value = preset.frequency;
+      filter.Q.value = preset.q;
+      gain.gain.value = state.settings.ambientVolume * preset.gain;
+      source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      source.start();
+      let lfo = null, lfoGain = null;
+      if(preset.lfoFrequency && preset.lfoDepth){
+        lfo = ctx.createOscillator();
+        lfoGain = ctx.createGain();
+        lfo.type = "sine";
+        lfo.frequency.value = preset.lfoFrequency;
+        lfoGain.gain.value = preset.lfoDepth;
+        lfo.connect(lfoGain); lfoGain.connect(gain.gain); lfo.start();
+      }
+      audio.ambient = {
+        gain,
+        stop: () => {
+          try{ source.stop(); }catch(e){}
+          try{ source.disconnect(); filter.disconnect(); gain.disconnect(); }catch(e){}
+          if(lfo){ try{ lfo.stop(); lfo.disconnect(); }catch(e){} }
+          if(lfoGain){ try{ lfoGain.disconnect(); }catch(e){} }
+        }
+      };
+      state.settings.ambientPlaying = true;
+    }
+    function updateAudioVolumes(){
+      if(audio.music.gain) audio.music.gain.gain.value = state.settings.musicVolume;
+      if(audio.ambient.gain){
+        const preset = ambientPresets[state.settings.ambientPreset] || ambientPresets.rain;
+        audio.ambient.gain.gain.value = state.settings.ambientVolume * preset.gain;
+      }
+    }
+
+    function syncText(){
+      if(state.settings.cloudEnabled) return "Cloud fields saved locally";
+      return "Saved on this device";
+    }
+
+    function renderNavButtons(active){
+      const items = [
+        ["dashboard","Home","🏠"],
+        ["planner","Planner","🗓️"],
+        ["focus","Focus","⏱️"],
+        ["study","Study","📚"],
+        ["more","More","⋯"],
+      ];
+      return items.map(([key,label,icon]) => `
+        <button data-nav="${key}" class="${active===key ? 'active' : ''}">
+          <span style="font-size:18px">${icon}</span><span>${label}</span>
+        </button>
+      `).join("");
+    }
+
+    function renderSidebar(){
+      refs.sidebar.innerHTML = `
+        <div class="stack">
+          <div class="surface section">
+            <div class="sidebar-brand">
+              <div class="brand-icon">✦</div>
+              <div>
+                <div style="font-weight:700; letter-spacing:-.02em">Momentum Campus</div>
+                <div class="muted tiny">Premium school productivity</div>
+              </div>
+            </div>
+            <div class="card-lite mt-5">
+              <div class="tiny muted">Welcome back</div>
+              <div style="font-size:1.125rem; font-weight:700; margin-top:4px">${escapeHtml(state.settings.username || "there")}</div>
+            </div>
+          </div>
+          <div class="surface section nav-card">
+            <div class="stack" style="gap:8px">${renderNavButtons(state.view)}</div>
+          </div>
+          <div class="surface section">
+            <div class="surface-label">Audio status</div>
+            <div class="stack mt-4" style="gap:12px">
+              <div class="card-lite">
+                <div class="tiny muted" style="text-transform:uppercase; letter-spacing:.14em">Music</div>
+                <div style="font-weight:700; margin-top:6px">${state.settings.musicPlaying ? escapeHtml(classicalPresets[state.settings.musicPreset].name) : "Off"}</div>
+              </div>
+              <div class="card-lite">
+                <div class="tiny muted" style="text-transform:uppercase; letter-spacing:.14em">Ambient</div>
+                <div style="font-weight:700; margin-top:6px">${state.settings.ambientPlaying ? escapeHtml(ambientPresets[state.settings.ambientPreset].name) : "Off"}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      refs.bottomNav.innerHTML = renderNavButtons(state.view);
+    }
+
+    function renderTopbar(){
+      const title = state.view === "dashboard" ? "A cleaner home for your work"
+        : state.view === "planner" ? "Day planner"
+        : state.view === "focus" ? "Focus room"
+        : state.view === "study" ? "Study hub"
+        : state.settings.moreTab === "music" ? "Music and ambience" : "More settings";
+      refs.topbar.innerHTML = `
+        <div class="surface section">
+          <div class="row" style="align-items:flex-end; flex-wrap:wrap">
+            <div>
+              <div class="tiny muted">Today</div>
+              <div style="font-size:clamp(1.75rem,3vw,2rem); font-weight:700; letter-spacing:-.03em; margin-top:6px">${escapeHtml(title)}</div>
+            </div>
+            <div class="pill-grid">
+              <span class="badge accent">${escapeHtml(syncText())}</span>
+              ${state.settings.musicPlaying ? `<span class="badge">Music on</span>` : ``}
+              ${state.settings.ambientPlaying ? `<span class="badge">Ambient on</span>` : ``}
+              <span class="muted tiny" style="align-self:center">${new Date().toLocaleDateString(undefined,{weekday:"long", month:"long", day:"numeric"})}</span>
+            </div>
+          </div>
+        </div>`;
+      refs.moreTabs.innerHTML = state.view === "more" ? `
+        <div class="segmented">
+          <button data-moretab="music" class="${state.settings.moreTab === "music" ? "active" : ""}">Music</button>
+          <button data-moretab="settings" class="${state.settings.moreTab === "settings" ? "active" : ""}">Settings</button>
+        </div>
+      ` : "";
+    }
+
+    function taskCard(task){
+      return `<div class="card-lite">
+        <div class="task">
+          <button class="toggle" data-toggle-task="${task.id}" aria-label="toggle task">${task.completed ? "✅" : "◯"}</button>
+          <div>
+            <div style="font-weight:600; ${task.completed ? 'text-decoration:line-through; opacity:.6' : ''}">${escapeHtml(task.title)}</div>
+            <div class="pill-grid mt-4" style="margin-top:8px">
+              <span class="badge">${escapeHtml(task.area || "General")}</span>
+              <span class="badge ${task.priority === "high" ? "danger" : task.priority === "medium" ? "accent" : ""}">${escapeHtml(task.priority)}</span>
+              ${task.dueDate ? `<span class="badge">${escapeHtml(formatDate(task.dueDate))}</span>` : ``}
+            </div>
+            ${task.notes ? `<div class="muted" style="font-size:.92rem; margin-top:12px">${escapeHtml(task.notes)}</div>` : ``}
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function dashboardPage(){
+      const tasks = sortTasks(state.tasks);
+      const today = todayKey();
+      const taskViews = {
+        today: tasks.filter(task => !task.completed && (!task.dueDate || task.dueDate === today)),
+        all: tasks,
+        done: tasks.filter(task => task.completed)
+      };
+      const todayTasks = taskViews.today;
+      const completedTasks = tasks.filter(t => t.completed).length;
+      const completedHabits = state.habits.filter(h => h.completions && h.completions[today]).length;
+      const bestHabitStreak = state.habits.length ? Math.max(...state.habits.map(h => habitStreak(h)), 0) : 0;
+      const completionRate = tasks.length ? Math.round((completedTasks / tasks.length) * 100) : 0;
+      const quote = dashboardQuotes[new Date().getDate() % dashboardQuotes.length];
+      return `
+        <div class="stack">
+          <div class="surface hero section">
+            <div class="hero-grid">
+              <div>
+                <div class="eyebrow">✦ Premium layout, now with music and ambience</div>
+                <h1 class="mt-4">Your school and focus system, finally designed like a real product.</h1>
+                <p class="muted mt-4" style="max-width:760px; font-size:1rem">Clean hierarchy, fewer distractions, plus a separate sound space for classical study music and ambient noise.</p>
+                <div class="hero-actions">
+                  <button class="button" data-nav="focus">▶ Start focus session</button>
+                  <button class="button ghost" data-open-music>🎧 Open music</button>
+                </div>
+              </div>
+              <div class="metric-grid">
+                <div class="metric"><div class="label">Today</div><div class="value">${todayTasks.length}</div><div class="sub">open tasks</div></div>
+                <div class="metric"><div class="label">Streak</div><div class="value">${bestHabitStreak}d</div><div class="sub">best habit run</div></div>
+                <div class="metric"><div class="label">Focus</div><div class="value">${state.focus.totalFocusMinutes}m</div><div class="sub">deep work logged</div></div>
+                <div class="metric"><div class="label">Completion</div><div class="value">${completionRate}%</div><div class="sub">task finish rate</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="surface section">
+              <div class="section-title">
+                <div>
+                  <h2>Task lane</h2>
+                  <p>A tighter, better-scanning task surface.</p>
+                </div>
+                <div class="segmented">
+                  <button data-task-filter="today" class="${state.taskFilter === "today" ? "active" : ""}">Today</button>
+                  <button data-task-filter="all" class="${state.taskFilter === "all" ? "active" : ""}">All</button>
+                  <button data-task-filter="done" class="${state.taskFilter === "done" ? "active" : ""}">Done</button>
+                </div>
+              </div>
+              <div class="list scroller">
+                ${taskViews[state.taskFilter || "today"].map(taskCard).join("") || `<div class="muted tiny">Nothing in this lane.</div>`}
+              </div>
+            </div>
+
+            <div class="surface section">
+              <div class="section-title">
+                <div>
+                  <h2>Capture</h2>
+                  <p>Fast entry for anything you need to remember.</p>
+                </div>
+              </div>
+              <form id="task-form" class="stack" style="gap:12px">
+                <input name="title" placeholder="What needs to get done?" value="${escapeHtml(state.taskDraft?.title || "")}">
+                <div class="cards-2">
+                  <input type="date" name="dueDate" value="${escapeHtml(state.taskDraft?.dueDate || "")}">
+                  <select name="priority">
+                    ${["high","medium","low"].map(p => `<option value="${p}" ${((state.taskDraft?.priority || "medium")===p) ? "selected" : ""}>${p[0].toUpperCase()+p.slice(1)} priority</option>`).join("")}
+                  </select>
+                </div>
+                <input name="area" placeholder="Area or course" value="${escapeHtml(state.taskDraft?.area || "School")}">
+                <textarea id="quick-note" placeholder="Quick capture or brain dump">${escapeHtml(state.quickNote || "")}</textarea>
+                <button class="button" type="submit">＋ Add task</button>
+              </form>
+              <div class="card-lite mt-4">
+                <div class="tiny muted">Thought for the day</div>
+                <div style="font-weight:600; margin-top:8px; line-height:1.5">${escapeHtml(quote)}</div>
+                <div class="cards-2 mt-4">
+                  <div class="metric"><div class="label">Assignments due</div><div class="value">${sortAssignments(state.assignments).filter(a => a.status !== "done").length}</div></div>
+                  <div class="metric"><div class="label">Habits completed</div><div class="value">${completedHabits}</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function plannerPage(){
+      const planner = sortPlanner(state.planner);
+      return `
+        <div class="grid-2" style="grid-template-columns:.96fr 1.04fr">
+          <div class="surface section">
+            <div class="section-title"><div><h2>Plan the day</h2><p>A quiet schedule builder for study and life blocks.</p></div></div>
+            <form id="planner-form" class="stack" style="gap:12px">
+              <input name="title" placeholder="Block title" value="${escapeHtml(state.plannerDraft?.title || "")}">
+              <div class="cards-3">
+                <input type="date" name="date" value="${escapeHtml(state.plannerDraft?.date || todayKey())}">
+                <input type="time" name="start" value="${escapeHtml(state.plannerDraft?.start || "09:00")}">
+                <input type="time" name="end" value="${escapeHtml(state.plannerDraft?.end || "10:00")}">
+              </div>
+              <button class="button" type="submit">＋ Add block</button>
+            </form>
+            <div class="cards-2 mt-4">
+              <button class="preset-card" data-fill-planner='{"title":"Deep work","date":"${todayKey()}","start":"09:00","end":"10:30"}'>
+                <div style="font-weight:600">Morning deep work</div>
+                <div class="muted tiny" style="margin-top:6px">09:00 — 10:30</div>
+              </button>
+              <button class="preset-card" data-fill-planner='{"title":"Lecture review","date":"${todayKey()}","start":"19:00","end":"20:00"}'>
+                <div style="font-weight:600">Lecture review</div>
+                <div class="muted tiny" style="margin-top:6px">19:00 — 20:00</div>
+              </button>
+            </div>
+          </div>
+          <div class="surface section">
+            <div class="section-title"><div><h2>Timeline</h2><p>Designed to read cleanly on phone and desktop.</p></div></div>
+            <div class="timeline-grid scroller" style="max-height:620px">
+              ${planner.map(block => `
+                <div class="card-lite ${block.date===todayKey() ? 'strong' : ''}">
+                  <div class="timeline-item">
+                    <div class="brand-icon" style="width:44px; height:44px; font-size:18px">🗓️</div>
+                    <div>
+                      <div style="font-weight:600">${escapeHtml(block.title)}</div>
+                      <div class="muted tiny" style="margin-top:6px">${escapeHtml(formatDate(block.date))} • ${escapeHtml(block.start)} — ${escapeHtml(block.end)}</div>
+                    </div>
+                    <button class="icon-button" data-delete-planner="${block.id}">🗑️</button>
+                  </div>
+                </div>
+              `).join("") || `<div class="muted tiny">No blocks yet.</div>`}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function focusPage(){
+      const total = state.focus.mode === "focus" ? state.settings.focusMinutes * 60 : ((state.focus.sessionsCompleted % 4 === 0 ? state.settings.longBreakMinutes : state.settings.shortBreakMinutes) || 7) * 60;
+      const progress = total ? Math.max(0, Math.min(100, Math.round(((total - state.focus.secondsLeft) / total) * 100))) : 0;
+      const label = String(Math.floor(state.focus.secondsLeft/60)).padStart(2,"0") + ":" + String(state.focus.secondsLeft%60).padStart(2,"0");
+      return `
+        <div class="focus-grid">
+          <div class="surface section" style="text-align:center; overflow:hidden; position:relative">
+            <div style="position:absolute; inset:0; background:radial-gradient(circle at top, var(--accent-soft), transparent 34%); pointer-events:none"></div>
+            <div style="position:relative">
+              <div class="section-title" style="justify-content:center"><div><h2>Focus room</h2><p>A premium timer with one job: keep you locked in.</p></div></div>
+              <div class="focus-ring" style="background:conic-gradient(var(--accent) ${progress}%, var(--accent2) ${Math.min(progress+10,100)}%, rgba(255,255,255,.08) 0%)">
+                <div class="focus-ring-inner">
+                  <div>
+                    <div class="smallcaps">${escapeHtml(state.focus.mode === "focus" ? "Focus mode" : "Break mode")}</div>
+                    <div class="focus-big mono">${label}</div>
+                    <div class="muted tiny" style="margin-top:8px">${escapeHtml(state.focus.intent || "One clean session.")}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="hero-actions" style="justify-content:center">
+                <button class="button" data-focus-toggle>${state.focus.running ? "⏸ Pause" : "▶ Start"}</button>
+                <button class="button ghost" data-focus-reset>↺ Reset</button>
+              </div>
+              <div class="cards-3 mt-4">
+                <div class="metric"><div class="label">Sessions</div><div class="value">${state.focus.sessionsCompleted}</div></div>
+                <div class="metric"><div class="label">Minutes</div><div class="value">${state.focus.totalFocusMinutes}</div></div>
+                <div class="metric"><div class="label">Habits done</div><div class="value">${state.habits.filter(h => h.completions && h.completions[todayKey()]).length}</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="stack">
+            <div class="surface section">
+              <div class="section-title"><div><h2>Session intent</h2><p>Write the one thing this session is for.</p></div></div>
+              <textarea id="focus-intent">${escapeHtml(state.focus.intent || "")}</textarea>
+            </div>
+            <div class="surface section">
+              <div class="section-title"><div><h2>Timer settings</h2><p>Adjust your rhythm without clutter.</p></div></div>
+              ${[
+                ["Focus minutes","focusMinutes",15,90],
+                ["Short break","shortBreakMinutes",3,30],
+                ["Long break","longBreakMinutes",3,30]
+              ].map(([label,key,min,max])=>`
+                <div class="mb-4">
+                  <div class="tiny muted" style="margin-bottom:8px">${label}</div>
+                  <input type="range" min="${min}" max="${max}" value="${state.settings[key]}" data-range-setting="${key}">
+                  <div class="tiny muted" style="margin-top:6px">${state.settings[key]} minutes</div>
+                </div>
+              `).join("")}
+              <label class="card-lite" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+                <div>
+                  <div style="font-weight:600">Auto-start breaks</div>
+                  <div class="tiny muted" style="margin-top:4px">Keep the flow moving automatically.</div>
+                </div>
+                <input id="auto-start-breaks" type="checkbox" ${state.settings.autoStartBreaks ? "checked" : ""} style="width:auto; transform:scale(1.15)">
+              </label>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function studyPage(){
+      const assignments = sortAssignments(state.assignments);
+      const notes = [...state.notes].sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+      const filtered = notes.filter(note => `${note.title} ${note.content}`.toLowerCase().includes((state.noteSearch||"").toLowerCase()));
+      return `
+        <div class="grid-study">
+          <div class="stack">
+            <div class="surface section">
+              <div class="section-title"><div><h2>Assignments</h2><p>Deadlines and progress without the mess.</p></div></div>
+              <form id="assignment-form" class="stack" style="gap:12px; margin-bottom:16px">
+                <input name="title" placeholder="Assignment, quiz, reading" value="${escapeHtml(state.assignmentDraft?.title || "")}">
+                <div class="cards-2">
+                  <input name="course" placeholder="Course" value="${escapeHtml(state.assignmentDraft?.course || "")}">
+                  <input type="date" name="dueDate" value="${escapeHtml(state.assignmentDraft?.dueDate || "")}">
+                </div>
+                <select name="priority">
+                  ${["high","medium","low"].map(p => `<option value="${p}" ${((state.assignmentDraft?.priority || "medium")===p) ? "selected" : ""}>${p[0].toUpperCase()+p.slice(1)} priority</option>`).join("")}
+                </select>
+                <button class="button" type="submit">＋ Add assignment</button>
+              </form>
+              <div class="list scroller">
+                ${assignments.map(item => `
+                  <div class="card-lite">
+                    <div style="font-weight:600">${escapeHtml(item.title)}</div>
+                    <div class="muted tiny" style="margin-top:6px">${escapeHtml(item.course || "Course")}${item.dueDate ? ` • ${escapeHtml(formatDate(item.dueDate))}` : ""}</div>
+                    <div class="pill-grid mt-4" style="margin-top:10px">
+                      <span class="badge">${escapeHtml(item.priority)}</span>
+                      <span class="badge ${item.status==="done" ? "success" : item.status==="in-progress" ? "accent" : ""}">${escapeHtml(item.status.replace("-"," "))}</span>
+                    </div>
+                    <div class="cards-3 mt-4">
+                      ${[
+                        ["not-started","Not started"],
+                        ["in-progress","In progress"],
+                        ["done","Done"]
+                      ].map(([value,label])=>`
+                        <button class="preset-card" data-assignment-status="${item.id}|${value}" style="${item.status===value ? 'border-color:var(--accent); background:var(--accent-soft); color:var(--accent);' : ''}">${label}</button>
+                      `).join("")}
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <div class="surface section">
+              <div class="section-title"><div><h2>Habits</h2><p>A small daily system that stays out of the way.</p></div></div>
+              <div class="list">
+                ${state.habits.map(habit => {
+                  const done = !!(habit.completions && habit.completions[todayKey()]);
+                  return `
+                    <button class="card-lite" data-toggle-habit="${habit.id}" style="text-align:left">
+                      <div style="display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center">
+                        <div style="font-size:24px">${habit.emoji}</div>
+                        <div>
+                          <div style="font-weight:600">${escapeHtml(habit.name)}</div>
+                          <div class="muted tiny" style="margin-top:6px">${done ? "Completed today" : "Tap to mark complete"}</div>
+                        </div>
+                        <div>${done ? "✅" : "◯"}</div>
+                      </div>
+                    </button>
+                  `;
+                }).join("")}
+              </div>
+            </div>
+          </div>
+
+          <div class="surface section">
+            <div class="section-title"><div><h2>Study vault</h2><p>Notes, lecture plans, and anything you need to keep.</p></div></div>
+            <div class="search-wrap mb-4">
+              <div class="search-icon">🔎</div>
+              <input id="note-search" placeholder="Search notes" value="${escapeHtml(state.noteSearch || "")}">
+            </div>
+            <form id="note-form" class="stack" style="gap:12px; margin-bottom:16px">
+              <input name="title" placeholder="Note title" value="${escapeHtml(state.noteDraft?.title || "")}">
+              <textarea name="content" placeholder="Write lecture notes, ideas, or study plans here...">${escapeHtml(state.noteDraft?.content || "")}</textarea>
+              <button class="button" type="submit">📝 Save note</button>
+            </form>
+            <div class="list scroller">
+              ${filtered.map(note => `
+                <div class="card-lite">
+                  <div class="row" style="align-items:flex-start">
+                    <div>
+                      <div style="font-weight:600">${escapeHtml(note.title)}</div>
+                      <div class="muted tiny" style="margin-top:6px">Updated ${new Date(note.updatedAt).toLocaleDateString()}</div>
+                    </div>
+                    <button class="icon-button" data-delete-note="${note.id}">🗑️</button>
+                  </div>
+                  <div class="muted" style="font-size:.92rem; margin-top:12px; white-space:pre-wrap">${escapeHtml(note.content)}</div>
+                </div>
+              `).join("") || `<div class="muted tiny">No notes yet.</div>`}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function morePage(){
+      if(state.settings.moreTab === "music"){
+        const musicPreset = classicalPresets[state.settings.musicPreset] || classicalPresets.nocturne;
+        const ambientPreset = ambientPresets[state.settings.ambientPreset] || ambientPresets.rain;
+        return `
+          <div class="grid-2">
+            <div class="surface section">
+              <div class="section-title">
+                <div><h2>Classical music</h2><p>Built-in classical-inspired study loops.</p></div>
+                <span class="badge ${state.settings.musicPlaying ? "accent" : ""}">${state.settings.musicPlaying ? "Playing" : "Stopped"}</span>
+              </div>
+              <div class="card-lite audio-card">
+                <div class="tiny muted">Current preset</div>
+                <div class="value">${escapeHtml(musicPreset.name)}</div>
+                <div class="muted tiny" style="margin-top:8px">${escapeHtml(musicPreset.description)}</div>
+                <div class="mt-4">
+                  <button class="button" data-toggle-music>${state.settings.musicPlaying ? "⏸ Pause music" : "▶ Play music"}</button>
+                </div>
+              </div>
+              <div class="preset-grid-3 mt-4">
+                ${Object.entries(classicalPresets).map(([key,preset])=>`
+                  <button class="preset-card" data-music-preset="${key}" style="${state.settings.musicPreset===key ? 'border-color:var(--accent); background:var(--accent-soft); color:var(--accent);' : ''}">
+                    <div style="font-weight:600">${escapeHtml(preset.name)}</div>
+                    <div class="tiny ${state.settings.musicPreset===key ? '' : 'muted'}" style="margin-top:6px">${escapeHtml(preset.description)}</div>
+                  </button>
+                `).join("")}
+              </div>
+              <div class="mt-5">
+                <div class="tiny muted" style="margin-bottom:8px">Music volume</div>
+                <input type="range" min="0" max="1" step="0.01" id="music-volume" value="${state.settings.musicVolume}">
+                <div class="tiny muted" style="margin-top:6px">${Math.round(state.settings.musicVolume*100)}%</div>
+              </div>
+            </div>
+
+            <div class="surface section">
+              <div class="section-title">
+                <div><h2>Ambient sounds</h2><p>Separate ambience layer for studying or focus sessions.</p></div>
+                <span class="badge ${state.settings.ambientPlaying ? "accent" : ""}">${state.settings.ambientPlaying ? "Playing" : "Stopped"}</span>
+              </div>
+              <div class="card-lite audio-card">
+                <div class="tiny muted">Current ambience</div>
+                <div class="value">${escapeHtml(ambientPreset.name)}</div>
+                <div class="muted tiny" style="margin-top:8px">${escapeHtml(ambientPreset.description)}</div>
+                <div class="mt-4">
+                  <button class="button ghost" data-toggle-ambient>${state.settings.ambientPlaying ? "⏸ Pause ambience" : "▶ Play ambience"}</button>
+                </div>
+              </div>
+              <div class="preset-grid-2 mt-4">
+                ${Object.entries(ambientPresets).map(([key,preset])=>`
+                  <button class="preset-card" data-ambient-preset="${key}" style="${state.settings.ambientPreset===key ? 'border-color:var(--accent); background:var(--accent-soft); color:var(--accent);' : ''}">
+                    <div style="font-weight:600">${escapeHtml(preset.name)}</div>
+                    <div class="tiny ${state.settings.ambientPreset===key ? '' : 'muted'}" style="margin-top:6px">${escapeHtml(preset.description)}</div>
+                  </button>
+                `).join("")}
+              </div>
+              <div class="mt-5">
+                <div class="tiny muted" style="margin-bottom:8px">Ambient volume</div>
+                <input type="range" min="0" max="1" step="0.01" id="ambient-volume" value="${state.settings.ambientVolume}">
+                <div class="tiny muted" style="margin-top:6px">${Math.round(state.settings.ambientVolume*100)}%</div>
+              </div>
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="grid-2">
+          <div class="surface section">
+            <div class="section-title"><div><h2>Appearance</h2><p>More themes and more background styles.</p></div></div>
+            <div>
+              <div class="tiny muted" style="margin-bottom:12px">Theme</div>
+              <div class="theme-grid">
+                ${Object.entries(themes).map(([key,theme])=>`
+                  <button class="theme-card color-card" data-theme="${key}" style="background:${theme.background}; color:${theme.text}; ${state.settings.theme===key ? 'border-color:var(--accent);' : ''}">
+                    <div style="font-weight:600">${escapeHtml(theme.name)}</div>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+            <div class="mt-5">
+              <div class="tiny muted" style="margin-bottom:12px">Background</div>
+              <div class="theme-grid">
+                ${Object.entries(backgrounds).map(([key,bg])=>`
+                  <button class="bg-card" data-background="${key}" style="${state.settings.background===key ? 'border-color:var(--accent); background:var(--accent-soft); color:var(--accent);' : ''}">
+                    <div style="font-weight:600">${escapeHtml(bg.name)}</div>
+                  </button>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+
+          <div class="surface section">
+            <div class="section-title"><div><h2>Sync and backup</h2><p>Local by default, backup ready for free hosting.</p></div></div>
+            <div class="card-lite mb-4">
+              <div class="row">
+                <div>
+                  <div style="font-weight:600">Sync status</div>
+                  <div class="muted tiny" style="margin-top:6px">${escapeHtml(syncText())}</div>
+                </div>
+                <div>${state.settings.cloudEnabled ? "☁️" : "💾"}</div>
+              </div>
+            </div>
+
+            <label class="card-lite mb-4" style="display:flex; align-items:center; justify-content:space-between; gap:12px">
+              <div>
+                <div style="font-weight:600">Enable cloud sync</div>
+                <div class="muted tiny" style="margin-top:6px">Fields are saved here for later use.</div>
+              </div>
+              <input type="checkbox" id="cloud-enabled" ${state.settings.cloudEnabled ? "checked" : ""} style="width:auto; transform:scale(1.15)">
+            </label>
+
+            <div class="stack" style="gap:12px">
+              <input id="username-input" placeholder="Your name" value="${escapeHtml(state.settings.username || "")}">
+              <input id="workspace-id-input" placeholder="Workspace ID" value="${escapeHtml(state.settings.workspaceId || "")}">
+              <input id="supabase-url-input" placeholder="Supabase project URL" value="${escapeHtml(state.settings.supabaseUrl || "")}">
+              <input id="supabase-key-input" placeholder="Supabase anon key" value="${escapeHtml(state.settings.supabaseAnonKey || "")}">
+            </div>
+
+            <div class="cards-2 mt-4">
+              <button class="button ghost" data-export>⬇ Export backup</button>
+              <label class="button ghost" style="width:100%; cursor:pointer">
+                ⬆ Import backup
+                <input type="file" id="import-file" accept="application/json" hidden>
+              </label>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderPage(){
+      const page = state.view === "dashboard" ? dashboardPage()
+        : state.view === "planner" ? plannerPage()
+        : state.view === "focus" ? focusPage()
+        : state.view === "study" ? studyPage()
+        : morePage();
+      refs.page.innerHTML = page;
+    }
+
+    function render(){
+      applyTheme();
+      renderSidebar();
+      renderTopbar();
+      renderPage();
+      saveState();
+    }
+
+    function startFocusInterval(){
+      if(focusInterval) clearInterval(focusInterval);
+      if(!state.focus.running) return;
+      focusInterval = setInterval(()=>{
+        if(state.focus.secondsLeft <= 1){
+          const finishedFocus = state.focus.mode === "focus";
+          const nextMode = finishedFocus ? "break" : "focus";
+          const nextSessions = finishedFocus ? (state.focus.sessionsCompleted || 0) + 1 : state.focus.sessionsCompleted || 0;
+          const nextMinutes = finishedFocus ? (state.focus.totalFocusMinutes || 0) + (state.settings.focusMinutes || 35) : state.focus.totalFocusMinutes || 0;
+          const breakLength = nextSessions % 4 === 0 ? state.settings.longBreakMinutes : state.settings.shortBreakMinutes;
+          state.focus.mode = nextMode;
+          state.focus.secondsLeft = nextMode === "focus" ? state.settings.focusMinutes * 60 : breakLength * 60;
+          state.focus.sessionsCompleted = nextSessions;
+          state.focus.totalFocusMinutes = nextMinutes;
+          state.focus.running = nextMode === "break" ? !!state.settings.autoStartBreaks : false;
+          if(!state.focus.running) clearInterval(focusInterval);
+        } else {
+          state.focus.secondsLeft -= 1;
+        }
+        render();
+      }, 1000);
+    }
+
+    document.addEventListener("click", async (e) => {
+      const nav = e.target.closest("[data-nav]");
+      if(nav){
+        state.view = nav.dataset.nav;
+        render();
+        return;
+      }
+      const moreTab = e.target.closest("[data-moretab]");
+      if(moreTab){
+        state.settings.moreTab = moreTab.dataset.moretab;
+        render();
+        return;
+      }
+      const openMusic = e.target.closest("[data-open-music]");
+      if(openMusic){
+        state.view = "more";
+        state.settings.moreTab = "music";
+        render();
+        return;
+      }
+      const taskFilter = e.target.closest("[data-task-filter]");
+      if(taskFilter){
+        state.taskFilter = taskFilter.dataset.taskFilter;
+        render();
+        return;
+      }
+      const toggleTaskBtn = e.target.closest("[data-toggle-task]");
+      if(toggleTaskBtn){
+        const id = toggleTaskBtn.dataset.toggleTask;
+        state.tasks = state.tasks.map(task => task.id === id ? {...task, completed: !task.completed} : task);
+        render();
+        return;
+      }
+      const fillPlanner = e.target.closest("[data-fill-planner]");
+      if(fillPlanner){
+        state.plannerDraft = JSON.parse(fillPlanner.dataset.fillPlanner);
+        render();
+        return;
+      }
+      const deletePlanner = e.target.closest("[data-delete-planner]");
+      if(deletePlanner){
+        state.planner = state.planner.filter(item => item.id !== deletePlanner.dataset.deletePlanner);
+        render();
+        return;
+      }
+      const assignmentStatus = e.target.closest("[data-assignment-status]");
+      if(assignmentStatus){
+        const [id,status] = assignmentStatus.dataset.assignmentStatus.split("|");
+        state.assignments = state.assignments.map(item => item.id === id ? {...item, status} : item);
+        render();
+        return;
+      }
+      const toggleHabitBtn = e.target.closest("[data-toggle-habit]");
+      if(toggleHabitBtn){
+        const id = toggleHabitBtn.dataset.toggleHabit;
+        state.habits = state.habits.map(item => item.id === id ? {...item, completions:{...(item.completions||{}), [todayKey()]: !(item.completions && item.completions[todayKey()])}} : item);
+        render();
+        return;
+      }
+      const deleteNote = e.target.closest("[data-delete-note]");
+      if(deleteNote){
+        state.notes = state.notes.filter(note => note.id !== deleteNote.dataset.deleteNote);
+        render();
+        return;
+      }
+      const themeBtn = e.target.closest("[data-theme]");
+      if(themeBtn){
+        state.settings.theme = themeBtn.dataset.theme;
+        render();
+        return;
+      }
+      const bgBtn = e.target.closest("[data-background]");
+      if(bgBtn){
+        state.settings.background = bgBtn.dataset.background;
+        render();
+        return;
+      }
+      const musicPreset = e.target.closest("[data-music-preset]");
+      if(musicPreset){
+        state.settings.musicPreset = musicPreset.dataset.musicPreset;
+        if(state.settings.musicPlaying){ await startMusic(); }
+        render();
+        return;
+      }
+      const ambientPreset = e.target.closest("[data-ambient-preset]");
+      if(ambientPreset){
+        state.settings.ambientPreset = ambientPreset.dataset.ambientPreset;
+        if(state.settings.ambientPlaying){ await startAmbient(); }
+        render();
+        return;
+      }
+      const toggleMusicBtn = e.target.closest("[data-toggle-music]");
+      if(toggleMusicBtn){
+        if(state.settings.musicPlaying){
+          stopMusic();
+          showToast("Music paused");
+        } else {
+          await startMusic();
+          showToast(classicalPresets[state.settings.musicPreset].name + " started");
+        }
+        render();
+        return;
+      }
+      const toggleAmbientBtn = e.target.closest("[data-toggle-ambient]");
+      if(toggleAmbientBtn){
+        if(state.settings.ambientPlaying){
+          stopAmbient();
+          showToast("Ambient paused");
+        } else {
+          await startAmbient();
+          showToast(ambientPresets[state.settings.ambientPreset].name + " started");
+        }
+        render();
+        return;
+      }
+      const exportBtn = e.target.closest("[data-export]");
+      if(exportBtn){
+        const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "momentum-campus-backup.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
+    });
+
+    document.addEventListener("change", async (e) => {
+      if(e.target.id === "quick-note"){
+        state.quickNote = e.target.value;
+        saveState();
+      }
+      if(e.target.id === "focus-intent"){
+        state.focus.intent = e.target.value;
+        saveState();
+      }
+      if(e.target.id === "auto-start-breaks"){
+        state.settings.autoStartBreaks = e.target.checked;
+        saveState();
+      }
+      if(e.target.dataset.rangeSetting){
+        const key = e.target.dataset.rangeSetting;
+        state.settings[key] = Number(e.target.value);
+        if(key === "focusMinutes" && state.focus.mode === "focus" && !state.focus.running){
+          state.focus.secondsLeft = state.settings.focusMinutes * 60;
+        }
+        render();
+      }
+      if(e.target.id === "music-volume"){
+        state.settings.musicVolume = Number(e.target.value);
+        updateAudioVolumes();
+        saveState();
+        render();
+      }
+      if(e.target.id === "ambient-volume"){
+        state.settings.ambientVolume = Number(e.target.value);
+        updateAudioVolumes();
+        saveState();
+        render();
+      }
+      if(e.target.id === "cloud-enabled"){
+        state.settings.cloudEnabled = e.target.checked;
+        saveState();
+        render();
+      }
+      if(e.target.id === "username-input"){
+        state.settings.username = e.target.value;
+        saveState();
+      }
+      if(e.target.id === "workspace-id-input"){
+        state.settings.workspaceId = e.target.value;
+        saveState();
+      }
+      if(e.target.id === "supabase-url-input"){
+        state.settings.supabaseUrl = e.target.value;
+        saveState();
+      }
+      if(e.target.id === "supabase-key-input"){
+        state.settings.supabaseAnonKey = e.target.value;
+        saveState();
+      }
+      if(e.target.id === "note-search"){
+        state.noteSearch = e.target.value;
+        render();
+      }
+      if(e.target.id === "import-file"){
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+        const text = await file.text();
+        try{
+          const parsed = JSON.parse(text);
+          Object.assign(state, structuredClone(defaultState), parsed);
+          state.settings = {...defaultState.settings, ...(parsed.settings || {})};
+          state.focus = {...defaultState.focus, ...(parsed.focus || {})};
+          stopMusic(); stopAmbient();
+          if(state.settings.musicPlaying) await startMusic();
+          if(state.settings.ambientPlaying) await startAmbient();
+          showToast("Backup imported");
+          render();
+        } catch(err){
+          alert("That backup file could not be imported.");
+        }
+      }
+    });
+
+    document.addEventListener("submit", (e) => {
+      if(e.target.id === "task-form"){
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = String(fd.get("title") || "").trim();
+        if(!title) return;
+        state.tasks.unshift({
+          id: uid(),
+          title,
+          dueDate: String(fd.get("dueDate") || ""),
+          priority: String(fd.get("priority") || "medium"),
+          area: String(fd.get("area") || "School"),
+          notes: "",
+          completed: false,
+          createdAt: Date.now()
+        });
+        state.quickNote = document.getElementById("quick-note")?.value || state.quickNote;
+        showToast("Task added");
+        render();
+        return;
+      }
+      if(e.target.id === "planner-form"){
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = String(fd.get("title") || "").trim();
+        if(!title) return;
+        state.planner.push({
+          id: uid(),
+          title,
+          date: String(fd.get("date") || todayKey()),
+          start: String(fd.get("start") || "09:00"),
+          end: String(fd.get("end") || "10:00")
+        });
+        showToast("Block added");
+        render();
+        return;
+      }
+      if(e.target.id === "assignment-form"){
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = String(fd.get("title") || "").trim();
+        if(!title) return;
+        state.assignments.unshift({
+          id: uid(),
+          title,
+          course: String(fd.get("course") || "Course").trim() || "Course",
+          dueDate: String(fd.get("dueDate") || ""),
+          priority: String(fd.get("priority") || "medium"),
+          status: "not-started"
+        });
+        showToast("Assignment added");
+        render();
+        return;
+      }
+      if(e.target.id === "note-form"){
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = String(fd.get("title") || "").trim();
+        const content = String(fd.get("content") || "");
+        if(!title && !content.trim()) return;
+        state.notes.unshift({ id: uid(), title: title || "Untitled", content, updatedAt: Date.now() });
+        showToast("Note saved");
+        render();
+      }
+    });
+
+    document.addEventListener("input", (e) => {
+      if(e.target.id === "focus-intent"){
+        state.focus.intent = e.target.value;
+      }
+      if(e.target.id === "quick-note"){
+        state.quickNote = e.target.value;
+      }
+    });
+
+    function initializeFocus(){
+      if(state.focus.running) startFocusInterval();
+    }
+
+    function init(){
+      state.taskFilter = state.taskFilter || "today";
+      state.noteSearch = state.noteSearch || "";
+      applyTheme();
+      render();
+      initializeFocus();
+      if(state.settings.musicPlaying) startMusic();
+      if(state.settings.ambientPlaying) startAmbient();
+    }
+    init();
+  </script>
+</body>
+</html>
